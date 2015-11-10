@@ -2,12 +2,13 @@ module Documento where
 
 	import System.IO
 	import System.IO.Unsafe
+	import Data.List
 	import Control.Monad
 	import Papers
 
 
 	-- SCALARS
-	bar = "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
+	bar = "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
 
 
 	-- DATAS
@@ -18,9 +19,11 @@ module Documento where
 -}
 
 	data Document = Document
-		{	title			:: String
+		{	path			:: String
+		,	journal			:: String
 		,	ident			:: Int
 		,	year			:: Int
+		,	title			:: String
 		{-,	abstract		:: String
 		,	section_number	:: Int 
 		,	section 		:: [Section]
@@ -37,29 +40,40 @@ module Documento where
 	readDocument :: String -> IO Document
 	readDocument path = do
 		handle <- openFile path ReadMode
-		title <- hGetLine handle
-		ident <- hGetLine handle
-		year <- hGetLine handle
+		journal <- hGetLine handle		-- Revista
+		ident <- hGetLine handle		-- ID
+		year <- hGetLine handle			-- Año
+		no <- hGetLine handle 			-- (--)
+		title <- hGetLine handle		-- Título
+		no <- hGetLine handle			-- (--)
 		hClose handle
-		return (Document title (read ident::Int) (read year::Int))
+		return (Document path journal (read ident::Int) (read year::Int) title)
 
 
 	-- SHOW FUNCTIONS
 	showAllDocuments :: [Document] -> String
-	showAllDocuments (d:ds) = showDocument d ++ bar ++ showAllDocuments ds
+	showAllDocuments (d:ds) = showDocument d ++ "\n" ++ showAllDocuments ds
 	showAllDocuments [] = ""
 
 	showDocument :: Document -> String
-	showDocument doc = getTitle doc ++ "\n" ++ (show $ getIdent doc) ++ "\n" ++ (show $ getYear doc) ++ "\n"
+	showDocument doc = "Title: " ++ getTitle doc ++ " (" ++ (show $ getYear doc) ++ ")\n"
 
-	getTitle :: Document -> String
-	getTitle (Document title _ _) = title
+
+	-- GET FUNCTIONS
+	getPath :: Document -> String
+	getPath (Document path _ _ _ _) = path
+
+	getJournal :: Document -> String
+	getJournal (Document _ journal _ _ _) = journal
 
 	getIdent :: Document -> Int
-	getIdent (Document _ ident _) = ident
+	getIdent (Document _ _ ident _ _) = ident
 
 	getYear :: Document -> Int
-	getYear (Document _ _ year) = year
+	getYear (Document _ _ _ year _) = year
+
+	getTitle :: Document -> String
+	getTitle (Document _ _ _ _ title) = title
 
 
 	-- RETURN ALL DOCUMENTS
@@ -76,3 +90,6 @@ module Documento where
 	filterByYear year list = filter aux list
 		where
 			aux d = getYear d == year
+
+	orderByTitle :: [Document] -> [Document]
+	orderByTitle list = sort list
