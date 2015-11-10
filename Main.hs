@@ -3,6 +3,7 @@ module Main(main) where
 	import Documento
 	import Papers
 
+
 	-- Main menu
 	main :: IO ()
 	main = do
@@ -26,13 +27,13 @@ module Main(main) where
 			putStrLn "\nSorry, not recognized buffer.\n"
 			main
 
+
 	-- Options (exercices)
 	option1 :: IO ()
 	option1 = do
 		putStr "Year: "
 		year <- getLine
-		putStrLn "Searching articles..."
+		putStrLn $ "Searching articles...\n" ++ bar
 		papers <- getPapers
-		--putStrLn (showAllDocuments (getDocuments papers))
 		result <- getDocuments papers
-		putStrLn $ showAllDocuments result
+		putStrLn $ showAllDocuments $ filterByYear (read year::Int) result

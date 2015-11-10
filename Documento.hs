@@ -1,7 +1,5 @@
 module Documento where
 
-
-	-- IMPORTS
 	import System.IO
 	import System.IO.Unsafe
 	import Control.Monad
@@ -45,6 +43,7 @@ module Documento where
 		hClose handle
 		return (Document title (read ident::Int) (read year::Int))
 
+
 	-- SHOW FUNCTIONS
 	showAllDocuments :: [Document] -> String
 	showAllDocuments (d:ds) = showDocument d ++ bar ++ showAllDocuments ds
@@ -62,22 +61,18 @@ module Documento where
 	getYear :: Document -> Int
 	getYear (Document _ _ year) = year
 
-	-- Get from
-	{-getDocuments :: [String] -> [Document]
-	getDocuments lista = map (aux) lista
-		where
-			aux d = unsafePerformIO (readDocument d)-}
 
-	{-getDocuments :: [String] -> IO [Document]
-	getDocuments list = return $ map (aux) list
-		where
-			aux d = unsafePerformIO (readDocument d)-}
-
+	-- RETURN ALL DOCUMENTS
 	getDocuments :: [String] -> IO [Document]
 	getDocuments (l:ls) = do
-		print l
 		x <- readDocument l
-		print x
 		xs <- getDocuments ls
 		return $ [x] ++ xs
 	getDocuments [] = return []
+
+
+	-- PROCESS BUFFER OF DOCUMENTS
+	filterByYear :: Int -> [Document] -> [Document]
+	filterByYear year list = filter aux list
+		where
+			aux d = getYear d == year
