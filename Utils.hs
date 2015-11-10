@@ -1,5 +1,6 @@
 module Utils where
 
+	import Data.List
 	import Documento
 	import Papers
 
@@ -9,15 +10,22 @@ module Utils where
 	option1 = do
 		putStr "Year: "
 		year <- getLine
-		putStrLn $ "Searching articles...\n" ++ bar
+		putStrLn $ "\nSearching articles...\n" ++ bar
 		papers <- getPapers
 		result <- getDocuments papers
-		putStrLn $ showAllDocuments $ orderByTitle $ filterByYear (read year::Int) result
+		putStrLn $ showAllDocumentsTitles $ orderByTitle $ filterByYear (read year::Int) result
+		--putStrLn $ showAllDocuments $ orderByTitle $ filterByYear (read year::Int) result
+
 
 
 	-- Ejer 2
 	option2 :: IO ()
-	option2 = putStrLn "# Not implemented yet"
+	option2 = do
+		putStrLn bar
+		papers <- getPapers
+		result <- getDocuments papers
+		putStrLn $ showAllDocumentsJournal $ nub result -- nub -> Remove duplicates
+
 
 
 	-- Ejer 3
@@ -25,13 +33,11 @@ module Utils where
 	option3 = putStrLn "# Not implemented yet"
 
 
+
 	-- Ejer 4
 	option4 :: IO ()
-			"\t4) ...\n" ++
-			"\t5) ...\n" ++
-			"\t6) ...\n" ++
-			"\t7) ...\n" ++
 	option4 = putStrLn "# Not implemented yet"
+
 
 
 	-- Ejer 5
@@ -39,9 +45,11 @@ module Utils where
 	option5 = putStrLn "# Not implemented yet"
 
 
+
 	-- Ejer 6
 	option6 :: IO ()
 	option6 = putStrLn "# Not implemented yet"
+
 
 
 	-- Ejer 7
@@ -49,9 +57,11 @@ module Utils where
 	option7 = putStrLn "# Not implemented yet"
 
 
+
 	-- Ejer 8
 	option8 :: IO ()
 	option8 = putStrLn "# Not implemented yet"
+
 
 
 	-- Ejer 9
