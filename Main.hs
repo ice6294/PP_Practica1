@@ -32,5 +32,7 @@ module Main(main) where
 		putStr "Year: "
 		year <- getLine
 		putStrLn "Searching articles..."
-		papeles <- getPapers
-		putStrLn (showAllDocuments (getDocuments papeles))
+		papers <- getPapers
+		--putStrLn (showAllDocuments (getDocuments papers))
+		result <- getDocuments papers
+		putStrLn $ showAllDocuments result

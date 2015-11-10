@@ -1,12 +1,18 @@
 module Documento where
 
+
+	-- IMPORTS
 	import System.IO
 	import System.IO.Unsafe
 	import Control.Monad
 	import Papers
 
-	-- type Section :: String
 
+	-- SCALARS
+	bar = "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
+
+
+	-- DATAS
 {-
 	data Acronim = Acronim
 		{	short 		:: String
@@ -28,6 +34,8 @@ module Documento where
 	instance Ord Document where
 		compare a b = compare (getTitle a) (getTitle b)
 
+
+	-- READ ONE DOCUMENT
 	readDocument :: String -> IO Document
 	readDocument path = do
 		handle <- openFile path ReadMode
@@ -37,13 +45,13 @@ module Documento where
 		hClose handle
 		return (Document title (read ident::Int) (read year::Int))
 
-	-- Show functions
+	-- SHOW FUNCTIONS
 	showAllDocuments :: [Document] -> String
-	showAllDocuments (d:ds) = showDocument d ++ "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n" ++ showAll ds
-	showAll [] = ""
+	showAllDocuments (d:ds) = showDocument d ++ bar ++ showAllDocuments ds
+	showAllDocuments [] = ""
 
 	showDocument :: Document -> String
-	showDocument doc = getTitle doc ++ "\n" ++ (show $ getIdent doc) ++ "\n" ++ (show $ getYear doc)
+	showDocument doc = getTitle doc ++ "\n" ++ (show $ getIdent doc) ++ "\n" ++ (show $ getYear doc) ++ "\n"
 
 	getTitle :: Document -> String
 	getTitle (Document title _ _) = title
@@ -55,13 +63,21 @@ module Documento where
 	getYear (Document _ _ year) = year
 
 	-- Get from
-	getDocuments :: [String] -> [Document]
+	{-getDocuments :: [String] -> [Document]
 	getDocuments lista = map (aux) lista
 		where
-			aux d = unsafePerformIO (readDocument d)
+			aux d = unsafePerformIO (readDocument d)-}
 
-	funAuxiliar :: IO [Document]
-	funAuxiliar = do
-		cosa <- getPapers
-		cosa2 <- getDocuments cosa
-		return cosa2
+	{-getDocuments :: [String] -> IO [Document]
+	getDocuments list = return $ map (aux) list
+		where
+			aux d = unsafePerformIO (readDocument d)-}
+
+	getDocuments :: [String] -> IO [Document]
+	getDocuments (l:ls) = do
+		print l
+		x <- readDocument l
+		print x
+		xs <- getDocuments ls
+		return $ [x] ++ xs
+	getDocuments [] = return []
