@@ -9,8 +9,6 @@ module Documento where
 	-- SCALARS
 	bar = "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
 
-
-
 	-- DATAS
 {-
 	data Acronim = Acronim
@@ -26,7 +24,6 @@ module Documento where
 		,	title			:: String
 		,	abstract		:: String
 		,	sections		:: [[String]]
-		--,	sections		:: [String]
 		{-,	section_number	:: Int
 		,	acronims		:: [Acronim]-} } deriving (Show)
 
