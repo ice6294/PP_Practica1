@@ -2,6 +2,7 @@ module Acronimo where
 
 	import System.IO
 	import Data.Char
+	import Data.List
 
 
 	-- DATAS
@@ -203,3 +204,33 @@ module Acronimo where
 	showAcronims :: [Acronim] -> String
 	showAcronims [] = ""
 	showAcronims (a:as) = "\t- " ++ showAcronim a ++ showAcronims as
+
+
+
+	-- OTHER FUNCTIONS
+	removeDuplicated :: [Acronim] -> [Acronim]
+	removeDuplicated [] = []
+	removeDuplicated list = nub $ removeDuplicated' (head aux) (tail aux)
+		where
+			aux = sort list
+
+	removeDuplicated' :: Acronim -> [Acronim] -> [Acronim]
+	removeDuplicated' acr [] = [acr]
+	removeDuplicated' acr (a:as)
+		|	acr /= a			= [acr] ++ removeDuplicated' a as
+		|	getExp acr == ""	= [a]   ++ removeDuplicated' a as
+		|	otherwise			= [acr] ++ removeDuplicated' acr as
+
+
+
+	countDuplicates :: [Acronim] -> [String]
+	countDuplicates [] = []
+	countDuplicates list = countDuplicates' 1 (head aux) (tail aux)
+		where
+			aux = sort list
+
+	countDuplicates' :: Int -> Acronim -> [Acronim] -> [String]
+	countDuplicates' n acr [] = [(getAcr acr) ++ " -> (" ++ (show n) ++ ")"]
+	countDuplicates' n acr (a:as)
+		|	acr /= a	= [(getAcr acr) ++ " -> (" ++ (show n) ++ ")"] ++ countDuplicates' 1 a as
+		|	otherwise	= countDuplicates' (n+1) acr as

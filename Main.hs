@@ -20,9 +20,9 @@ module Main(main) where
 			"\t3) Search acronym in the articles and show the titles of the ones that have it.\n" ++
 			"\t4) Show titles of the articles published in a given journal that contains a given acronym.\n" ++
 			"\t5) Show acronyms from the articles published in a given year.\n" ++
-			"\t6) ...\n" ++
-			"\t7) ...\n" ++
-			"\t8) ...\n" ++
+			"\t6) Show acronyms with the numer of times that appears in an article from a given ID.\n" ++
+			"\t7) Show all IDs and titles of the articles with any acronyms.\n" ++
+			"\t8) Show all information from all articles\n" ++
 			"\t9) ...\n" ++
 			"\t(all)\n"  ++
 			"\t(exit)\n\n  $: "

@@ -8,7 +8,7 @@ module Documento where
 	import Acronimo
 
 	-- SCALARS
-	bar = "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
+	bar = "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
 
 	-- DATAS
 {-
@@ -53,7 +53,7 @@ module Documento where
 		acronims <- searchAcronims (resto)	-- QUICKSEARCH
 
 		return	(Document path journal (read ident::Int) (read year::Int) title	-- Dir, Rev, ID, Año, Título
-				(take 180 abstract ++ " ...") (getRest $ init $ lines resto) (nub acronims))	-- Resumen, Secciones, Acronimos
+				(take 180 abstract ++ " ...") (getRest $ init $ lines resto) (removeDuplicated acronims))	-- Resumen, Secciones, Acronimos
 
 	getRest :: [String] -> [[String]]
 	--getRest ["--"] = []
@@ -102,7 +102,7 @@ module Documento where
 
 		acronims <- quickSearch resto
 
-		return	(Document path "" 0 0 title "" [] (nub acronims))	-- Resumen, Secciones, Acronimos
+		return	(Document path "" 0 0 title "" [] (removeDuplicated acronims))
 
 	readDocument_4 :: String -> IO Document
 	readDocument_4 path = do
@@ -119,7 +119,7 @@ module Documento where
 
 		acronims <- searchAcronims resto
 
-		return	(Document path journal 0 0 title "" [] (nub acronims))	-- Resumen, Secciones, Acronimos
+		return	(Document path journal 0 0 title "" [] (removeDuplicated acronims))
 
 	readDocument_5 :: String -> IO Document
 	readDocument_5 path = do
@@ -136,7 +136,58 @@ module Documento where
 
 		acronims <- searchAcronims resto
 
-		return	(Document path "" 0 (read year::Int) title "" [] (nub acronims))	-- Resumen, Secciones, Acronimos
+		return	(Document path "" 0 (read year::Int) title "" [] (removeDuplicated acronims))
+
+	readDocument_6 :: String -> IO Document
+	readDocument_6 path = do
+		handle <- openFile path ReadMode
+		no <- hGetLine handle			-- Revista
+		id <- hGetLine handle			-- ID
+		no <- hGetLine handle			-- Año
+		no <- hGetLine handle 			-- (--)
+		title <- hGetLine handle		-- Título
+		no <- hGetLine handle			-- Resumen
+		no <- hGetLine handle			-- (--)
+
+		resto <- hGetContents handle	-- resto
+
+		acronims <- searchAcronims resto
+
+		return	(Document path "" (read id::Int) 0 title "" [] acronims)
+
+	readDocument_7 :: String -> IO Document
+	readDocument_7 path = do
+		handle <- openFile path ReadMode
+		no <- hGetLine handle			-- Revista
+		id <- hGetLine handle			-- ID
+		no <- hGetLine handle			-- Año
+		no <- hGetLine handle 			-- (--)
+		title <- hGetLine handle		-- Título
+		no <- hGetLine handle			-- Resumen
+		no <- hGetLine handle			-- (--)
+
+		resto <- hGetContents handle	-- resto
+
+		acronims <- searchAcronims resto
+
+		return	(Document path "" (read id::Int) 0 title "" [] (removeDuplicated acronims))
+
+	readDocument_8 :: String -> IO Document
+	readDocument_8 path = do
+		handle <- openFile path ReadMode
+		journal <- hGetLine handle		-- Revista
+		ident <- hGetLine handle		-- ID
+		year <- hGetLine handle			-- Año
+		no <- hGetLine handle 			-- (--)
+		title <- hGetLine handle		-- Título
+		no <- hGetLine handle			-- (--)
+		abstract <- hGetLine handle		-- Resumen
+		no <- hGetLine handle			-- (--)
+
+		resto <- hGetContents handle	-- resto
+
+		return	(Document path journal (read ident::Int) (read year::Int) title	-- Dir, Rev, ID, Año, Título
+				(take 180 abstract ++ " ...") (getRest $ init $ lines resto) [])	-- Resumen, Secciones, Acronimos
 
 
 
@@ -148,11 +199,9 @@ module Documento where
 	showAllDocuments [] = ""
 
 	showDocument :: Document -> String
-	showDocument doc =	"Path: " ++ getPath doc ++ "\nTitle: " ++ getTitle doc ++ " (" ++ (show $ getYear doc) ++
+	showDocument doc =	"\nTitle: " ++ getTitle doc ++ " (" ++ (show $ getYear doc) ++
 						")\nAbstract: " ++ getAbstract doc ++ "\nSection number: " ++
 						(show $ getSectionsNumber doc) ++ "\nSections:\n" ++ showTitles (getTitles doc)
-						++ "Acronimos: \n" ++ showAcronims (getAcronims doc)
-						-- ++ "Numero acronimos: " ++ (show $ length $ getAcronims doc) ++ "\n"
 
 	showTitles :: [String] -> String
 	showTitles [] = ""
@@ -175,6 +224,24 @@ module Documento where
 		showAcronims (getAcronims d) ++ showAllDocumentsTitlesAndAcronims ds
 	showAllDocumentsTitlesAndAcronims [] = ""
 
+	showAllDocumentsTitlesAndAcronims2 :: [Document] -> String
+	showAllDocumentsTitlesAndAcronims2 (d:ds) = "· " ++ getTitle d ++ "\n" ++
+		showPointed (countDuplicates $ getAcronims d) ++ showAllDocumentsTitlesAndAcronims2 ds
+	showAllDocumentsTitlesAndAcronims2 [] = ""
+
+	showAllDocumentsTitlesAndIds :: [Document] -> String
+	showAllDocumentsTitlesAndIds (d:ds) = "· " ++ getTitle d ++ ". Id: " ++ (show $ getIdent d) ++"\n" ++ showAllDocumentsTitlesAndIds ds
+	showAllDocumentsTitlesAndIds [] = ""
+
+	showAllDocumentsAndAcronims :: [Document] -> String
+	showAllDocumentsAndAcronims (d:ds) = showDocumentAndAcronims d ++ "\n" ++ showAllDocumentsAndAcronims ds
+	showAllDocumentsAndAcronims [] = ""
+
+	showDocumentAndAcronims :: Document -> String
+	showDocumentAndAcronims doc =	"\nPath: " ++ getPath doc ++ "\nTitle: " ++ getTitle doc ++ " (" ++ (show $ getYear doc) ++
+						")\nAbstract: " ++ getAbstract doc ++ "\nSection number: " ++
+						(show $ getSectionsNumber doc) ++ "\nSections:\n" ++ showTitles (getTitles doc)
+						++ "Acronimos: \n" ++ showAcronims (getAcronims doc)
 
 	-- GET FUNCTIONS
 	getPath :: Document -> String
@@ -239,6 +306,18 @@ module Documento where
 			x <- readDocument_5 l
 			xs <- getDocuments n ls
 			return $ [x] ++ xs
+		| n == 6	=	do
+			x <- readDocument_6 l
+			xs <- getDocuments n ls
+			return $ [x] ++ xs
+		| n == 7	=	do
+			x <- readDocument_7 l
+			xs <- getDocuments n ls
+			return $ [x] ++ xs
+		| n == 8	=	do
+			x <- readDocument_8 l
+			xs <- getDocuments n ls
+			return $ [x] ++ xs
 		| otherwise =	do
 			x <- readDocument l
 			xs <- getDocuments n ls
@@ -261,6 +340,16 @@ module Documento where
 	filterByJournal journal list = filter aux list
 		where
 			aux d = getJournal d == journal
+
+	filterById :: Int -> [Document] -> [Document]
+	filterById id list = filter aux list
+		where
+			aux d = getIdent d == id
+
+	filterByNoAcronims :: [Document] -> [Document]
+	filterByNoAcronims list = filter aux list
+		where
+			aux d = (length $ getAcronims d) == 0
 
 	orderByTitle :: [Document] -> [Document]
 	orderByTitle list = sort list

@@ -71,19 +71,33 @@ module Utils where
 
 	-- Ejer 6
 	option6 :: IO ()
-	option6 = putStrLn "# Not implemented yet"
+	option6 = do
+		putStr "ID: "
+		id <- getLine
+		putStrLn $ "\nSearching articles...\n" ++ bar
+
+		papers <- getPapers
+		result <- getDocuments 6 papers
+		putStrLn $ showAllDocumentsTitlesAndAcronims2 $ filterById (read id::Int) result
+
 
 
 
 	-- Ejer 7
 	option7 :: IO ()
-	option7 = putStrLn "# Not implemented yet"
+	option7 = do
+		papers <- getPapers
+		result <- getDocuments 7 papers
+		putStrLn $ showAllDocumentsTitlesAndIds $ filterByNoAcronims result
 
 
 
 	-- Ejer 8
 	option8 :: IO ()
-	option8 = putStrLn "# Not implemented yet"
+	option8 = do
+		papers <- getPapers
+		result <- getDocuments 8 papers
+		putStrLn $ showAllDocuments result
 
 
 
@@ -98,4 +112,4 @@ module Utils where
 	optionAll = do
 		papers <- getPapers
 		result <- getDocuments 0 papers
-		putStrLn $ showAllDocuments $ orderByTitle result
+		putStrLn $ showAllDocumentsAndAcronims $ orderByTitle result
