@@ -7,20 +7,69 @@ module Acronimo where
 	-- DATAS
 	data Acronim = Acronim	-- acr: acronimo, exp: forma expandida
 		{	acr	:: String
-		,	exp	:: String } deriving (Show)
+		,	exp	:: String
+		,	pos	:: Int		} deriving (Show)
+
+	instance Eq Acronim where
+		a == b = (getAcr a) == (getAcr b)
+
+	instance Ord Acronim where
+		compare a b = compare (getAcr a) (getAcr b)
 
 
 
 	-- GET FUNCTIONS
 	getAcr :: Acronim -> String
-	getAcr (Acronim acr _) = acr
+	getAcr (Acronim acr _ _) = acr
 
 	getExp :: Acronim -> String
-	getExp (Acronim _ exp) = exp
+	getExp (Acronim _ exp _) = exp
+
+	getPos :: Acronim -> Int
+	getPos (Acronim _ _ pos) = pos
 
 
 
 	-- READ ACRONIMS FROM REVERSED TEXT
+	quickSearch :: String -> IO [Acronim]
+	quickSearch text = do
+		acronims <- quickSearch' (reverse text) 0
+		return acronims
+
+	quickSearch' :: String -> Int -> IO [Acronim]
+	quickSearch' text n =
+		-- Si hemos llegado al final del texto
+		if n == (length text - 1) then
+			return []
+		else
+			-- Si es mayúscula
+			if isUpper $ text !! n then
+				-- Si es Acrónimo (es decir, no es mayúscula aislada)
+				if isUpper $ text !! (n+1) then
+					do
+						-- Recogemos el acrónimo
+						n2 <- endAcronim text n
+						-- Si es demasiado largo
+						if (n2-n) > 4 then
+							do
+								acronims <- quickSearch' text (n2+1)
+								return $ acronims
+						else
+							do
+								acr <- takeAcronim text n n2
+								acronims <- quickSearch' text (n2+1)
+								return $ acronims ++ [Acronim acr "" (length text - n)]
+				-- Es una mayúscula aislada
+				else
+					do
+						acronims <- quickSearch' text (n+1)
+						return acronims
+			-- No es mayúscula
+			else
+				do
+					acronims <- quickSearch' text (n+1)
+					return acronims
+
 	searchAcronims :: String -> IO [Acronim]
 	searchAcronims text = do
 		acronims <- searchAcronims' (reverse text) 0
@@ -33,27 +82,27 @@ module Acronimo where
 			return []
 		else
 			-- Si es mayúscula
-			if isValid $ text !! n then
+			if isUpper $ text !! n then
 				-- Si es Acrónimo (es decir, no es mayúscula aislada)
-				if isValid $ text !! (n+1) then
+				if isUpper $ text !! (n+1) then
 					do
 						-- Recogemos el acrónimo
 						n2 <- endAcronim text n
-						acr <- takeAcronim text n n2
-						putStrLn $ "ENCONTRADO! -> " ++ acr
-						-- Intentamos recoger el significado
-						putStr "Intentamos buscar su significado con: "
-						putStrLn $ "takeExpanded " ++ acr ++ " text " ++ (show $ length acr - 1) ++ " " ++ (show (n2+1))
-						putStrLn $ "Empieza buscando la " ++ [acr !! (length acr - 1)] ++ " por la " ++ [text !! (n2 + 1)]
-
-						exp <- takeExpanded acr text (length acr - 1) (n2+1)
-						putStrLn $ "Significado de " ++ acr ++ " : " ++ exp
-						acronims <- searchAcronims' text (n2+1)
-						return $ acronims ++ [Acronim acr exp]
+						-- Si es demasiado largo
+						if (n2-n) > 4 then
+							do
+								acronims <- searchAcronims' text (n2+1)
+								return $ acronims
+						else
+							do
+								acr <- takeAcronim text n n2
+								-- Intentamos recoger el significado
+								exp <- takeExpanded acr text (length acr - 1) (n2+1)
+								acronims <- searchAcronims' text (n2+1)
+								return $ acronims ++ [Acronim acr exp (length text - n)]
 				-- Es una mayúscula aislada
 				else
 					do
-						print ("Es mayuscula aislada: " ++ [text !! n])
 						acronims <- searchAcronims' text (n+1)
 						return acronims
 			-- No es mayúscula
@@ -66,7 +115,7 @@ module Acronimo where
 
 	-- ACR
 	isValid :: Char -> Bool
-	isValid c = (isUpper c || isNumber c || c == '-')
+	isValid c = (isUpper c || isNumber c || c == '-') -- Problema con los numeros y con "-"
 
 	endAcronim :: String -> Int -> IO (Int)
 	endAcronim text n =
@@ -75,7 +124,10 @@ module Acronimo where
 				n2 <- endAcronim text (n+1)
 				return n2
 		else
-			return $ n-1
+			if (text !! (n-1) == '-') then
+				return $ n-2
+			else
+				return $ n-1
 
 	takeAcronim :: String -> Int -> Int -> IO (String)
 	takeAcronim text n n2 =
@@ -90,27 +142,26 @@ module Acronimo where
 
 	-- EXP
 	-- devuelve String entero de la forma extendida
-	{- takeExpanded   acr   ->  text  ->n_acr->n_text->   exp	| n_acr: lenght acronim, n_text: beginin rest (in text)-}
+	{- takeExpanded   acr   ->  text  ->n_acr->n_text->   exp	| n_acr: length acronim, n_text: beginin rest (in text)-}
 	takeExpanded :: String  -> String -> Int -> Int -> IO String
 	takeExpanded acr text n_acr n_text =
-		if (text !! n_text == '(') then
+		if (text !! n_text == '(') && (text !! (n_text - n_acr - 2) == ')') then
 			do
-				putStr $ "\t$" ++ acr ++ " -> Con significado -> "
-				putStrLn $ "takeExpWords text " ++ (show $ n_text + 1) ++ " (endExpanded " ++ acr ++ " text " ++ (show n_acr) ++ " " ++ (show $ n_text+1) ++ ")" ++ " ~~~~~~~ endExpanded = " ++ (show $ endExpanded acr text n_acr (n_text+1))
 				exp <- takeExpWords text (n_text + 1) (endExpanded acr text n_acr (n_text+1))
-				return exp
+				if (length exp < 60)
+					then return exp
+					else return ""
 		else
 			do
-				putStrLn $ "\t#" ++ acr ++ " -> Sin Significado. Pasamos a otra ..."
 				return ""
 
 	-- match der-izq, devuelve la posición de la letra final de la forma expandida
-	{- endExpanded   acr  ->  text  ->n_acr->n_text-> end		| n_acr: lenght acronim, n_text: beginin rest (in text)-}
+	{- endExpanded   acr  ->  text  ->n_acr->n_text-> end		| n_acr: length acronim, n_text: beginin rest (in text)-}
 	endExpanded :: String -> String -> Int -> Int -> Int
-	endExpanded _ _ 0 n_text = n_text		-- Llamar a funcion que termine de recoger la palabra
+	endExpanded acr text (-1) n_text = n_text				-- LA ÚLTIMA TIENE QUE IR PROCEDIDA DE UN ESPACIO!!!!
 	endExpanded acr text n_acr n_text =
 		-- Si el acronimo contiene "-" se salta
-		if (acr !! n_acr == '-') then
+		if ((acr !! n_acr == '-') || (isDigit $ acr !! n_acr)) then
 			endExpanded acr text (n_acr-1) n_text
 		else
 			-- Si se ha encontrado una letra se tacha y se sigue buscando
@@ -146,25 +197,9 @@ module Acronimo where
 
 	-- SHOW FUNCTIONS
 	showAcronim :: Acronim -> String
-	showAcronim acronim = "Acronimo: " ++ getAcr acronim ++ ". Significado: " ++ getExp acronim ++ "\n"
+	showAcronim (Acronim acr "" _) = acr ++ "\n"
+	showAcronim acronim = getAcr acronim ++ " -> " ++ getExp acronim ++ "\n"
 
 	showAcronims :: [Acronim] -> String
 	showAcronims [] = ""
-	showAcronims (a:as) = showAcronim a ++ showAcronims as
-
-
-
-
-
-
-
-
-
-
-	textoPrueba = "Acá van algunos ejemplos de acronimos. AA-1 seria uno sin significado, blue basketball (BBB) sería otro, pero C no lo debería ser. Tal vez djeis for hallk suju (DJFHKSJ) si, esperemos jajaja. No."
-
-	prueba :: IO ()
-	prueba = do
-		all <- searchAcronims textoPrueba
-		putStrLn ""
-		putStrLn $ showAcronims all
+	showAcronims (a:as) = "\t- " ++ showAcronim a ++ showAcronims as

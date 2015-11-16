@@ -5,7 +5,7 @@ module Main(main) where
 	import Utils
 
 
-	-- Main menu
+	-- MAIN MENU
 	main :: IO ()
 	main = do
 		putStr menu
@@ -18,12 +18,13 @@ module Main(main) where
 			"\t1) Show titles of the articles (alphabetically ordered) published in one year.\n" ++
 			"\t2) Show magazines where all the articles in the collection were published.\n" ++
 			"\t3) Search acronym in the articles and show the titles of the ones that have it.\n" ++
-			"\t4) ...\n" ++
-			"\t5) ...\n" ++
+			"\t4) Show titles of the articles published in a given journal that contains a given acronym.\n" ++
+			"\t5) Show acronyms from the articles published in a given year.\n" ++
 			"\t6) ...\n" ++
 			"\t7) ...\n" ++
 			"\t8) ...\n" ++
 			"\t9) ...\n" ++
+			"\t(all)\n"  ++
 			"\t(exit)\n\n  $: "
 
 	select :: String -> IO ()
@@ -82,7 +83,13 @@ module Main(main) where
 			x <- getLine
 			main
 
-		| sel == "exit"	= putStrLn "Bye! :)\n\n"
+		| sel == "all"	= do 
+			optionAll
+			putStr "Press enter:"
+			x <- getLine
+			main
+
+		| sel == "exit"	= putStrLn "Bye!\n\n"
 
 		| otherwise		= do 
 			putStrLn "\nSorry, not recognized buffer.\n"
