@@ -1,5 +1,6 @@
 module Utils where
 
+	import System.Console.ANSI
 	import Data.List
 	import Documento
 	import Papers
@@ -13,8 +14,8 @@ module Utils where
 		putStrLn $ "\nSearching articles...\n" ++ bar
 
 		papers <- getPapers
-		result <- getDocuments 1 papers
-		putStrLn $ showAllDocumentsTitles $ orderByTitle $ filterByYear (read year::Int) result
+		result <- getDocuments 1 papers [year]
+		putStrLn $ showAllDocumentsTitles $ orderByTitle result
 
 
 
@@ -23,7 +24,7 @@ module Utils where
 	option2 = do
 		putStrLn bar
 		papers <- getPapers
-		result <- getDocuments 2 papers
+		result <- getDocuments 2 papers []
 		putStrLn $ showPointed $ nub $ getJournals result -- nub -> Remove duplicates
 
 
@@ -36,8 +37,8 @@ module Utils where
 		putStrLn $ "\nSearching in articles...\n" ++ bar
 
 		papers <- getPapers
-		result <- getDocuments 3 papers
-		putStrLn $ showAllDocumentsTitles $ filterByAcronim acronim result -- nub -> Remove duplicates
+		result <- getDocuments 3 papers [acronim]
+		putStrLn $ showAllDocumentsTitles result
 
 
 
@@ -51,8 +52,8 @@ module Utils where
 		putStrLn $ "\nSearching articles...\n" ++ bar
 
 		papers <- getPapers
-		result <- getDocuments 4 papers
-		putStrLn $ showAllDocumentsTitlesAndAcronims $ filterByAcronim acronim $ filterByJournal journal result
+		result <- getDocuments 4 papers [journal,acronim]
+		putStrLn $ showAllDocumentsTitles $ filterByAcronim acronim $ filterByJournal journal result
 
 
 
@@ -64,7 +65,7 @@ module Utils where
 		putStrLn $ "\nSearching articles...\n" ++ bar
 
 		papers <- getPapers
-		result <- getDocuments 5 papers
+		result <- getDocuments 5 papers [year]
 		putStrLn $ showAllDocumentsTitlesAndAcronims $ filterByYear (read year::Int) result
 
 
@@ -77,7 +78,7 @@ module Utils where
 		putStrLn $ "\nSearching articles...\n" ++ bar
 
 		papers <- getPapers
-		result <- getDocuments 6 papers
+		result <- getDocuments 6 papers [id]
 		putStrLn $ showAllDocumentsTitlesAndAcronims2 $ filterById (read id::Int) result
 
 
@@ -87,7 +88,7 @@ module Utils where
 	option7 :: IO ()
 	option7 = do
 		papers <- getPapers
-		result <- getDocuments 7 papers
+		result <- getDocuments 7 papers []
 		putStrLn $ showAllDocumentsTitlesAndIds $ filterByNoAcronims result
 
 
@@ -96,7 +97,7 @@ module Utils where
 	option8 :: IO ()
 	option8 = do
 		papers <- getPapers
-		result <- getDocuments 8 papers
+		result <- getDocuments 8 papers []
 		putStrLn $ showAllDocuments result
 
 
@@ -111,5 +112,6 @@ module Utils where
 	optionAll :: IO ()
 	optionAll = do
 		papers <- getPapers
-		result <- getDocuments 0 papers
-		putStrLn $ showAllDocumentsAndAcronims $ orderByTitle result
+		result <- getDocuments 0 papers []
+		clearLine
+		putStrLn $ showAllDocumentsAndAcronims $ orderByTitle $ removeDuplicatedAcronims result

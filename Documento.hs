@@ -2,6 +2,7 @@ module Documento where
 
 	import System.IO
 	import System.IO.Unsafe
+	import System.Console.ANSI
 	import Data.List
 	import Control.Monad
 	import Papers
@@ -9,14 +10,9 @@ module Documento where
 
 	-- SCALARS
 	bar = "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
+	read_funcions = [readDocument,readDocument_1,readDocument_2,readDocument_3,readDocument_4,readDocument_5,readDocument_6,readDocument_7,readDocument_8]
 
 	-- DATAS
-{-
-	data Acronim = Acronim
-		{	short 		:: String
-		,	expanded	:: String }
--}
-
 	data Document = Document
 		{	path			:: String
 		,	journal			:: String
@@ -36,8 +32,8 @@ module Documento where
 
 
 	-- READ ONE DOCUMENT FROM PATH
-	readDocument :: String -> IO Document
-	readDocument path = do
+	readDocument :: String -> [String] -> IO [Document]
+	readDocument path _ = do
 		handle <- openFile path ReadMode
 		journal <- hGetLine handle		-- Revista
 		ident <- hGetLine handle		-- ID
@@ -52,8 +48,8 @@ module Documento where
 
 		acronims <- searchAcronims (resto)	-- QUICKSEARCH
 
-		return	(Document path journal (read ident::Int) (read year::Int) title	-- Dir, Rev, ID, Año, Título
-				(take 180 abstract ++ " ...") (getRest $ init $ lines resto) (removeDuplicated acronims))	-- Resumen, Secciones, Acronimos
+		return	[(Document path journal (read ident::Int) (read year::Int) title	-- Dir, Rev, ID, Año, Título
+				(take 180 abstract ++ " ...") (getRest $ init $ lines resto) acronims)]	-- Resumen, Secciones, Acronimos
 
 	getRest :: [String] -> [[String]]
 	--getRest ["--"] = []
@@ -69,26 +65,29 @@ module Documento where
 
 
 	-- READ BY OPTION
-	readDocument_1 :: String -> IO Document
-	readDocument_1 path = do
+	readDocument_1 :: String -> [String] -> IO [Document]
+	readDocument_1 path args = do
 		handle <- openFile path ReadMode
 		no <- hGetLine handle			-- Revista
 		no <- hGetLine handle			-- ID
-		year <- hGetLine handle			-- Año
-		no <- hGetLine handle 			-- (--)
-		title <- hGetLine handle		-- Título
+		year <- hGetLine handle		-- Año
+		if (year == (args !! 0)) then
+			do
+				no <- hGetLine handle 			-- (--)
+				title <- hGetLine handle		-- Título
+				return [(Document path "" 0 (read year::Int) title "" [] [])]
+		else
+			return []
 
-		return (Document path "" 0 (read year::Int) title "" [] [])
-
-	readDocument_2 :: String -> IO Document
-	readDocument_2 path = do
+	readDocument_2 :: String -> [String] -> IO [Document]
+	readDocument_2 path _ = do
 		handle <- openFile path ReadMode
 		journal <- hGetLine handle			-- Revista
 
-		return (Document path journal 0 0 "" "" [] [])
+		return [(Document path journal 0 0 "" "" [] [])]
 
-	readDocument_3 :: String -> IO Document
-	readDocument_3 path = do
+	readDocument_3 :: String -> [String] -> IO [Document]
+	readDocument_3 path args = do
 		handle <- openFile path ReadMode
 		no <- hGetLine handle			-- Revista
 		no <- hGetLine handle			-- ID
@@ -102,44 +101,79 @@ module Documento where
 
 		acronims <- quickSearch resto
 
-		return	(Document path "" 0 0 title "" [] (removeDuplicated acronims))
+		if (containsAcronim acronims (args !! 0)) then
+			return [(Document path "" 0 0 title "" [] (removeDuplicated acronims))]
+		else
+			return []
 
-	readDocument_4 :: String -> IO Document
-	readDocument_4 path = do
+	readDocument_4 :: String -> [String] -> IO [Document]
+	readDocument_4 path args = do
 		handle <- openFile path ReadMode
 		journal <- hGetLine handle		-- Revista
-		no <- hGetLine handle			-- ID
-		no <- hGetLine handle			-- Año
-		no <- hGetLine handle 			-- (--)
-		title <- hGetLine handle		-- Título
-		no <- hGetLine handle			-- Resumen
-		no <- hGetLine handle			-- (--)
+		if (journal == (args !! 0)) then
+			do
+				no <- hGetLine handle			-- ID
+				no <- hGetLine handle			-- Año
+				no <- hGetLine handle 			-- (--)
+				title <- hGetLine handle		-- Título
+				no <- hGetLine handle			-- Resumen
+				no <- hGetLine handle			-- (--)
 
-		resto <- hGetContents handle	-- resto
+				resto <- hGetContents handle	-- resto
 
-		acronims <- searchAcronims resto
+				acronims <- searchAcronims resto
 
-		return	(Document path journal 0 0 title "" [] (removeDuplicated acronims))
+				if (containsAcronim acronims (args !! 1)) then
+					return	[(Document path journal 0 0 title "" [] (removeDuplicated acronims))]
+				else
+					return []
+		else
+			return []
 
-	readDocument_5 :: String -> IO Document
-	readDocument_5 path = do
+	readDocument_5 :: String -> [String] -> IO [Document]
+	readDocument_5 path args = do
 		handle <- openFile path ReadMode
 		no <- hGetLine handle			-- Revista
 		no <- hGetLine handle			-- ID
 		year <- hGetLine handle			-- Año
-		no <- hGetLine handle 			-- (--)
-		title <- hGetLine handle		-- Título
-		no <- hGetLine handle			-- Resumen
-		no <- hGetLine handle			-- (--)
+		if (year == (args !! 0)) then
+			do
+				no <- hGetLine handle 			-- (--)
+				title <- hGetLine handle		-- Título
+				no <- hGetLine handle			-- Resumen
+				no <- hGetLine handle			-- (--)
 
-		resto <- hGetContents handle	-- resto
+				resto <- hGetContents handle	-- resto
 
-		acronims <- searchAcronims resto
+				acronims <- searchAcronims resto
 
-		return	(Document path "" 0 (read year::Int) title "" [] (removeDuplicated acronims))
+				return	[(Document path "" 0 (read year::Int) title "" [] (removeDuplicated acronims))]
+		else
+			return []
 
-	readDocument_6 :: String -> IO Document
-	readDocument_6 path = do
+	readDocument_6 :: String -> [String] -> IO [Document]
+	readDocument_6 path args = do
+		handle <- openFile path ReadMode
+		no <- hGetLine handle			-- Revista
+		id <- hGetLine handle			-- ID
+		if (id == (args !! 0)) then
+			do
+				no <- hGetLine handle			-- Año
+				no <- hGetLine handle 			-- (--)
+				title <- hGetLine handle		-- Título
+				no <- hGetLine handle			-- Resumen
+				no <- hGetLine handle			-- (--)
+
+				resto <- hGetContents handle	-- resto
+
+				acronims <- searchAcronims resto
+
+				return	[(Document path "" (read id::Int) 0 title "" [] acronims)]
+		else
+			return []
+
+	readDocument_7 :: String -> [String] -> IO [Document]
+	readDocument_7 path _ = do
 		handle <- openFile path ReadMode
 		no <- hGetLine handle			-- Revista
 		id <- hGetLine handle			-- ID
@@ -152,28 +186,13 @@ module Documento where
 		resto <- hGetContents handle	-- resto
 
 		acronims <- searchAcronims resto
+		if (acronims == []) then
+			return	[(Document path "" (read id::Int) 0 title "" [] (removeDuplicated acronims))]
+		else
+			return []
 
-		return	(Document path "" (read id::Int) 0 title "" [] acronims)
-
-	readDocument_7 :: String -> IO Document
-	readDocument_7 path = do
-		handle <- openFile path ReadMode
-		no <- hGetLine handle			-- Revista
-		id <- hGetLine handle			-- ID
-		no <- hGetLine handle			-- Año
-		no <- hGetLine handle 			-- (--)
-		title <- hGetLine handle		-- Título
-		no <- hGetLine handle			-- Resumen
-		no <- hGetLine handle			-- (--)
-
-		resto <- hGetContents handle	-- resto
-
-		acronims <- searchAcronims resto
-
-		return	(Document path "" (read id::Int) 0 title "" [] (removeDuplicated acronims))
-
-	readDocument_8 :: String -> IO Document
-	readDocument_8 path = do
+	readDocument_8 :: String -> [String] -> IO [Document]
+	readDocument_8 path _ = do
 		handle <- openFile path ReadMode
 		journal <- hGetLine handle		-- Revista
 		ident <- hGetLine handle		-- ID
@@ -186,8 +205,8 @@ module Documento where
 
 		resto <- hGetContents handle	-- resto
 
-		return	(Document path journal (read ident::Int) (read year::Int) title	-- Dir, Rev, ID, Año, Título
-				(take 180 abstract ++ " ...") (getRest $ init $ lines resto) [])	-- Resumen, Secciones, Acronimos
+		return	[(Document path journal (read ident::Int) (read year::Int) title	-- Dir, Rev, ID, Año, Título
+				(take 180 abstract ++ " ...") (getRest $ init $ lines resto) [])]	-- Resumen, Secciones, Acronimos
 
 
 
@@ -284,45 +303,27 @@ module Documento where
 
 	-- RETURN ALL DOCUMENTS
 	-- n: indica la manera de leer los documentos
-	getDocuments :: Int -> [String] -> IO [Document]
-	getDocuments n (l:ls)
-		| n == 1	=	do
-			x <- readDocument_1 l
-			xs <- getDocuments n ls
-			return $ [x] ++ xs
-		| n == 2	=	do
-			x <- readDocument_2 l
-			xs <- getDocuments n ls
-			return $ [x] ++ xs
-		| n == 3	=	do
-			x <- readDocument_3 l
-			xs <- getDocuments n ls
-			return $ [x] ++ xs
-		| n == 4	=	do
-			x <- readDocument_4 l
-			xs <- getDocuments n ls
-			return $ [x] ++ xs
-		| n == 5	=	do
-			x <- readDocument_5 l
-			xs <- getDocuments n ls
-			return $ [x] ++ xs
-		| n == 6	=	do
-			x <- readDocument_6 l
-			xs <- getDocuments n ls
-			return $ [x] ++ xs
-		| n == 7	=	do
-			x <- readDocument_7 l
-			xs <- getDocuments n ls
-			return $ [x] ++ xs
-		| n == 8	=	do
-			x <- readDocument_8 l
-			xs <- getDocuments n ls
-			return $ [x] ++ xs
-		| otherwise =	do
-			x <- readDocument l
-			xs <- getDocuments n ls
-			return $ [x] ++ xs
-	getDocuments _ [] = return []
+	getDocuments :: Int -> [String] -> [String] -> IO [Document]
+	getDocuments n (l:ls) args = do
+		x <- (read_funcions !! n) l args -- readDdocument_# path args
+		putStr $ "."
+		xs <- getDocuments n ls args
+		return $ x ++ xs
+	getDocuments _ [] _ = return []
+
+	getAllDocuments :: Int -> Int -> [String] -> IO [Document]
+	getAllDocuments n1 n2 (l:ls) = do
+		x <- readDocument l []
+		clearScreen
+		cursorUp 100
+		putStrLn $ "Cargando " ++ printPoints n1 ++ " (" ++ (show n1) ++ " de " ++ (show n2) ++ ")\n"
+		xs <- getAllDocuments (n1+1) n2 ls
+		return $ x ++ xs
+	getAllDocuments _ _ [] = return []
+
+	printPoints :: Int -> String
+	printPoints 0 = ""
+	printPoints n = "." ++ printPoints (n-1)
 
 
 	-- PROCESS BUFFER OF DOCUMENTS
@@ -357,3 +358,16 @@ module Documento where
 	getJournals :: [Document] -> [String]
 	getJournals [] = []
 	getJournals (d:ds) = [getJournal d] ++ getJournals ds
+
+	containsAcronim :: [Acronim] -> String -> Bool
+	containsAcronim [] _ = False
+	containsAcronim (a:as) acronim =
+		if (getAcr a == acronim) then
+			True
+		else
+			containsAcronim as acronim
+
+	removeDuplicatedAcronims :: [Document] -> [Document]
+	removeDuplicatedAcronims [] = []
+	removeDuplicatedAcronims ((Document path journal ident year title abstract sections acronims):ds) =
+		[(Document path journal ident year title abstract sections (removeDuplicated acronims))] ++ removeDuplicatedAcronims ds
