@@ -1,0 +1,12 @@
+Author: Luis León Gámez (GII+GIS)
+
+Files:
+	· Main.hs
+	· Utils.hs
+	· Utils2.hs
+	· Documento.hs
+	· Papers.hs
+	· Acronimo.hs
+	· OrthographicMeasures.hs
+
+Compile command: ghc -odir Program/O_files/ -hidir Program/HI_files/ -o Program/Practica1 --make Main.hs
