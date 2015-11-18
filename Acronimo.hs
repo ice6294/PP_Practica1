@@ -4,40 +4,39 @@ module Acronimo where
 	import Data.Char
 	import Data.List
 
-
 	-- DATAS
-	data Acronim = Acronim	-- acr: acronimo, exp: forma expandida
+	data Acronym = Acronym	-- acr: acronimo, exp: forma expandida
 		{	acr	:: String
 		,	exp	:: String
 		,	pos	:: Int		} deriving (Show)
 
-	instance Eq Acronim where
+	instance Eq Acronym where
 		a == b = (getAcr a) == (getAcr b)
 
-	instance Ord Acronim where
+	instance Ord Acronym where
 		compare a b = compare (getAcr a) (getAcr b)
 
 
 
 	-- GET FUNCTIONS
-	getAcr :: Acronim -> String
-	getAcr (Acronim acr _ _) = acr
+	getAcr :: Acronym -> String
+	getAcr (Acronym acr _ _) = acr
 
-	getExp :: Acronim -> String
-	getExp (Acronim _ exp _) = exp
+	getExp :: Acronym -> String
+	getExp (Acronym _ exp _) = exp
 
-	getPos :: Acronim -> Int
-	getPos (Acronim _ _ pos) = pos
+	getPos :: Acronym -> Int
+	getPos (Acronym _ _ pos) = pos
 
 
 
 	-- READ ACRONIMS FROM REVERSED TEXT
-	quickSearch :: String -> IO [Acronim]
+	quickSearch :: String -> IO [Acronym]
 	quickSearch text = do
-		acronims <- quickSearch' (reverse text) 0
-		return acronims
+		acronyms <- quickSearch' (reverse text) 0
+		return acronyms
 
-	quickSearch' :: String -> Int -> IO [Acronim]
+	quickSearch' :: String -> Int -> IO [Acronym]
 	quickSearch' text n =
 		-- Si hemos llegado al final del texto
 		if n == (length text - 1) then
@@ -49,35 +48,35 @@ module Acronimo where
 				if isUpper $ text !! (n+1) then
 					do
 						-- Recogemos el acrónimo
-						n2 <- endAcronim text n
+						n2 <- endAcronym text n
 						-- Si es demasiado largo
 						if (n2-n) > 4 then
 							do
-								acronims <- quickSearch' text (n2+1)
-								return $ acronims
+								acronyms <- quickSearch' text (n2+1)
+								return $ acronyms
 						else
 							do
-								acr <- takeAcronim text n n2
-								acronims <- quickSearch' text (n2+1)
-								return $ acronims ++ [Acronim acr "" (length text - n)]
+								acr <- takeAcronym text n n2
+								acronyms <- quickSearch' text (n2+1)
+								return $ acronyms ++ [Acronym acr "" (length text - n)]
 				-- Es una mayúscula aislada
 				else
 					do
-						acronims <- quickSearch' text (n+1)
-						return acronims
+						acronyms <- quickSearch' text (n+1)
+						return acronyms
 			-- No es mayúscula
 			else
 				do
-					acronims <- quickSearch' text (n+1)
-					return acronims
+					acronyms <- quickSearch' text (n+1)
+					return acronyms
 
-	searchAcronims :: String -> IO [Acronim]
-	searchAcronims text = do
-		acronims <- searchAcronims' (reverse text) 0
-		return acronims
+	searchAcronyms :: String -> IO [Acronym]
+	searchAcronyms text = do
+		acronyms <- searchAcronyms' (reverse text) 0
+		return acronyms
 
-	searchAcronims' :: String -> Int -> IO [Acronim]
-	searchAcronims' text n =
+	searchAcronyms' :: String -> Int -> IO [Acronym]
+	searchAcronyms' text n =
 		-- Si hemos llegado al final del texto
 		if n == (length text - 1) then
 			return []
@@ -88,29 +87,29 @@ module Acronimo where
 				if isUpper $ text !! (n+1) then
 					do
 						-- Recogemos el acrónimo
-						n2 <- endAcronim text n
+						n2 <- endAcronym text n
 						-- Si es demasiado largo
 						if (n2-n) > 4 then
 							do
-								acronims <- searchAcronims' text (n2+1)
-								return $ acronims
+								acronyms <- searchAcronyms' text (n2+1)
+								return $ acronyms
 						else
 							do
-								acr <- takeAcronim text n n2
+								acr <- takeAcronym text n n2
 								-- Intentamos recoger el significado
 								exp <- takeExpanded acr text (length acr - 1) (n2+1)
-								acronims <- searchAcronims' text (n2+1)
-								return $ acronims ++ [Acronim acr exp (length text - n)]
+								acronyms <- searchAcronyms' text (n2+1)
+								return $ acronyms ++ [Acronym acr exp (length text - n)]
 				-- Es una mayúscula aislada
 				else
 					do
-						acronims <- searchAcronims' text (n+1)
-						return acronims
+						acronyms <- searchAcronyms' text (n+1)
+						return acronyms
 			-- No es mayúscula
 			else
 				do
-					acronims <- searchAcronims' text (n+1)
-					return acronims
+					acronyms <- searchAcronyms' text (n+1)
+					return acronyms
 
 
 
@@ -118,11 +117,11 @@ module Acronimo where
 	isValid :: Char -> Bool
 	isValid c = (isUpper c || isNumber c || c == '-') -- Problema con los numeros y con "-"
 
-	endAcronim :: String -> Int -> IO (Int)
-	endAcronim text n =
+	endAcronym :: String -> Int -> IO (Int)
+	endAcronym text n =
 		if isValid $ text !! n then
 			do
-				n2 <- endAcronim text (n+1)
+				n2 <- endAcronym text (n+1)
 				return n2
 		else
 			if (text !! (n-1) == '-') then
@@ -130,13 +129,13 @@ module Acronimo where
 			else
 				return $ n-1
 
-	takeAcronim :: String -> Int -> Int -> IO (String)
-	takeAcronim text n n2 =
+	takeAcronym :: String -> Int -> Int -> IO (String)
+	takeAcronym text n n2 =
 		if (n-1) == n2 then
 			return ""
 		else
 			do
-				acr <- takeAcronim text n (n2-1)
+				acr <- takeAcronym text n (n2-1)
 				return $ [text !! n2] ++ acr
 
 
@@ -197,39 +196,39 @@ module Acronimo where
 
 
 	-- SHOW FUNCTIONS
-	showAcronim :: Acronim -> String
-	showAcronim (Acronim acr "" _) = acr ++ "\n"
-	showAcronim acronim = getAcr acronim ++ " -> " ++ getExp acronim ++ "\n"
+	showAcronym :: Acronym -> String
+	showAcronym (Acronym acr "" _) = acr ++ "\n"
+	showAcronym acronym = getAcr acronym ++ " -> " ++ getExp acronym ++ "\n"
 
-	showAcronims :: [Acronim] -> String
-	showAcronims [] = ""
-	showAcronims (a:as) = "\t- " ++ showAcronim a ++ showAcronims as
+	showAcronyms :: [Acronym] -> String
+	showAcronyms [] = ""
+	showAcronyms (a:as) = "\t- " ++ showAcronym a ++ showAcronyms as
 
 
 
 	-- OTHER FUNCTIONS
-	removeDuplicated :: [Acronim] -> [Acronim]
-	removeDuplicated [] = []
-	removeDuplicated list = nub $ removeDuplicated' (head aux) (tail aux)
+	removeDuplicates :: [Acronym] -> [Acronym]
+	removeDuplicates [] = []
+	removeDuplicates list = nub $ removeDuplicates' (head aux) (tail aux)
 		where
 			aux = sort list
 
-	removeDuplicated' :: Acronim -> [Acronim] -> [Acronim]
-	removeDuplicated' acr [] = [acr]
-	removeDuplicated' acr (a:as)
-		|	acr /= a			= [acr] ++ removeDuplicated' a as
-		|	getExp acr == ""	= [a]   ++ removeDuplicated' a as
-		|	otherwise			= [acr] ++ removeDuplicated' acr as
+	removeDuplicates' :: Acronym -> [Acronym] -> [Acronym]
+	removeDuplicates' acr [] = [acr]
+	removeDuplicates' acr (a:as)
+		|	acr /= a			= [acr] ++ removeDuplicates' a as
+		|	getExp acr == ""	= [a]   ++ removeDuplicates' a as
+		|	otherwise			= [acr] ++ removeDuplicates' acr as
 
 
 
-	countDuplicates :: [Acronim] -> [String]
+	countDuplicates :: [Acronym] -> [String]
 	countDuplicates [] = []
 	countDuplicates list = countDuplicates' 1 (head aux) (tail aux)
 		where
 			aux = sort list
 
-	countDuplicates' :: Int -> Acronim -> [Acronim] -> [String]
+	countDuplicates' :: Int -> Acronym -> [Acronym] -> [String]
 	countDuplicates' n acr [] = [(getAcr acr) ++ " -> (" ++ (show n) ++ ")"]
 	countDuplicates' n acr (a:as)
 		|	acr /= a	= [(getAcr acr) ++ " -> (" ++ (show n) ++ ")"] ++ countDuplicates' 1 a as

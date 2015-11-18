@@ -1,9 +1,14 @@
 module Utils where
 
 	import System.Console.ANSI
+	import Data.Char
 	import Data.List
 	import Documento
 	import Papers
+
+	-- SCALARS
+	options = [optionAll,option1,option2,option3,option4,option5,option6,option7,option8,option9]
+
 
 
 	-- Ejer 1
@@ -32,7 +37,7 @@ module Utils where
 	-- Ejer 3
 	option3 :: IO ()
 	option3 = do
-		putStr "Acronim: "
+		putStr "Acronym: "
 		acronim <- getLine
 		putStrLn $ "\nSearching in articles...\n" ++ bar
 
@@ -48,12 +53,12 @@ module Utils where
 		putStr "Journal: "
 		journal <- getLine
 		putStr "Acronym: "
-		acronim <- getLine
+		acronym <- getLine
 		putStrLn $ "\nSearching articles...\n" ++ bar
 
 		papers <- getPapers
-		result <- getDocuments 4 papers [journal,acronim]
-		putStrLn $ showAllDocumentsTitles $ filterByAcronim acronim $ filterByJournal journal result
+		result <- getDocuments 4 papers [journal,acronym]
+		putStrLn $ showAllDocumentsTitles $ filterByAcronym acronym $ filterByJournal journal result
 
 
 
@@ -66,7 +71,7 @@ module Utils where
 
 		papers <- getPapers
 		result <- getDocuments 5 papers [year]
-		putStrLn $ showAllDocumentsTitlesAndAcronims $ filterByYear (read year::Int) result
+		putStrLn $ showAllDocumentsTitlesAndAcronyms $ filterByYear (read year::Int) result
 
 
 
@@ -79,8 +84,7 @@ module Utils where
 
 		papers <- getPapers
 		result <- getDocuments 6 papers [id]
-		putStrLn $ showAllDocumentsTitlesAndAcronims2 $ filterById (read id::Int) result
-
+		putStrLn $ showAllDocumentsTitlesAndAcronyms2 $ filterById (read id::Int) result
 
 
 
@@ -89,7 +93,7 @@ module Utils where
 	option7 = do
 		papers <- getPapers
 		result <- getDocuments 7 papers []
-		putStrLn $ showAllDocumentsTitlesAndIds $ filterByNoAcronims result
+		putStrLn $ showAllDocumentsTitlesAndIds $ filterByNoAcronyms result
 
 
 
@@ -114,4 +118,4 @@ module Utils where
 		papers <- getPapers
 		result <- getDocuments 0 papers []
 		clearLine
-		putStrLn $ showAllDocumentsAndAcronims $ orderByTitle $ removeDuplicatedAcronims result
+		putStrLn $ showAllDocumentsAndAcronyms $ orderByTitle $ removeDuplicatedAcronyms result

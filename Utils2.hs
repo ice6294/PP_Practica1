@@ -1,7 +1,13 @@
 module Utils2 where
 
+	import System.Console.ANSI
+	import Data.Char
 	import Data.List
 	import Documento
+
+	-- SCALARS
+	options_2 = [optionAll_2,option1_2,option2_2,option3_2,option4_2,option5_2,option6_2,option7_2,option8_2,option9_2]
+
 
 
 	-- Ejer 1
@@ -25,10 +31,10 @@ module Utils2 where
 	-- Ejer 3
 	option3_2 :: [Document] -> IO ()
 	option3_2 docs = do
-		putStr "Acronim: "
-		acronim <- getLine
+		putStr "Acronym: "
+		acronym <- getLine
 		putStrLn $ "\nSearching in articles...\n" ++ bar
-		putStrLn $ showAllDocumentsTitles $ filterByAcronim acronim docs -- nub -> Remove duplicates
+		putStrLn $ showAllDocumentsTitles $ filterByAcronym acronym docs -- nub -> Remove duplicates
 
 
 
@@ -38,9 +44,9 @@ module Utils2 where
 		putStr "Journal: "
 		journal <- getLine
 		putStr "Acronym: "
-		acronim <- getLine
+		acronym <- getLine
 		putStrLn $ "\nSearching articles...\n" ++ bar
-		putStrLn $ showAllDocumentsTitles $ filterByAcronim acronim $ filterByJournal journal (removeDuplicatedAcronims docs)
+		putStrLn $ showAllDocumentsTitles $ filterByAcronym acronym $ filterByJournal journal (removeDuplicatedAcronyms docs)
 
 
 
@@ -50,7 +56,7 @@ module Utils2 where
 		putStr "Year: "
 		year <- getLine
 		putStrLn $ "\nSearching articles...\n" ++ bar
-		putStrLn $ showAllDocumentsTitlesAndAcronims $ filterByYear (read year::Int) (removeDuplicatedAcronims docs)
+		putStrLn $ showAllDocumentsTitlesAndAcronyms $ filterByYear (read year::Int) (removeDuplicatedAcronyms docs)
 
 
 
@@ -60,7 +66,7 @@ module Utils2 where
 		putStr "ID: "
 		id <- getLine
 		putStrLn $ "\nSearching articles...\n" ++ bar
-		putStrLn $ showAllDocumentsTitlesAndAcronims2 $ filterById (read id::Int) docs
+		putStrLn $ showAllDocumentsTitlesAndAcronyms2 $ filterById (read id::Int) docs
 
 
 
@@ -68,7 +74,7 @@ module Utils2 where
 	-- Ejer 7
 	option7_2 :: [Document] -> IO ()
 	option7_2 docs = do
-		putStrLn $ showAllDocumentsTitlesAndIds $ filterByNoAcronims docs
+		putStrLn $ showAllDocumentsTitlesAndIds $ filterByNoAcronyms docs
 
 
 
@@ -88,4 +94,4 @@ module Utils2 where
 	-- Option All
 	optionAll_2 :: [Document] -> IO ()
 	optionAll_2 docs = do
-		putStrLn $ showAllDocumentsAndAcronims $ orderByTitle $ removeDuplicatedAcronims docs
+		putStrLn $ showAllDocumentsAndAcronyms $ orderByTitle $ removeDuplicatedAcronyms docs
