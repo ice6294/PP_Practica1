@@ -5,6 +5,7 @@ module Utils2 where
 	import Data.List
 	import Documento
 	import Extras
+	import Aux
 
 	-- SCALARS
 	options_2 = [optionAll_2,option1_2,option2_2,option3_2,option4_2,option5_2,option6_2,option7_2,option8_2,option9_2]
@@ -23,7 +24,7 @@ module Utils2 where
 	-- Ejer 2
 	option2_2 :: [Document] -> IO ()
 	option2_2 docs = do
-		putStrLn bar
+		--putStrLn bar
 		putStrLn $ showPointed $ nub $ getJournals docs -- nub -> Remove duplicates
 
 
@@ -82,11 +83,34 @@ module Utils2 where
 
 	-- Ejer 9
 	option9_2 :: [Document] -> IO ()
-	option9_2 docs = putStrLn "# Not implemented yet"
+	option9_2 docs = do
+		putStrLn $ showExtras $ sortByAuxLength $ readExtras docs
 
 
 
 	-- Option All
 	optionAll_2 :: [Document] -> IO ()
 	optionAll_2 docs = do
-		putStrLn $ showAllDocumentsAndAcronyms $ orderByTitle $ removeDuplicatedAcronyms docs
+		--putStrLn $ showAllDocumentsAndAcronyms $ orderByTitle $ removeDuplicatedAcronyms docs
+		showOneByOne (orderByTitle $ removeDuplicatedAcronyms docs) 0
+
+	showOneByOne :: [Document] -> Int -> IO ()
+	showOneByOne docs (-1) = showOneByOne docs 0
+	showOneByOne docs i = do
+		if (i < length docs) then
+			do
+				clearUp
+				putStrLn ((show i) ++ ") " ++ bar ++ showDocumentAndAcronyms (docs !! i) ++ "\n")
+				sel <- prompt "prev(p) / next(n) / (stop) / nº  $ "
+				if (sel == "p") then
+					showOneByOne docs (i-1)
+				else if (sel == "n" || sel == "") then
+					showOneByOne docs (i+1)
+				else if (sel == "stop") then
+					putStrLn ""
+				else if (all isDigit sel) then
+					showOneByOne docs (read sel::Int)
+				else
+					showOneByOne docs (i)
+		else
+			putStrLn ""

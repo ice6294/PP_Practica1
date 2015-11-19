@@ -49,7 +49,7 @@ module Main(main) where
 			"\t6) Show acronyms with the numer of times that appears in an article from a given ID.\n" ++
 			"\t7) Show all IDs and titles of the articles without any acronyms.\n" ++
 			"\t8) Show all information from all articles.\n" ++
-			"\t9) ...\n" ++
+			"\t9) Tralalalalalala.\n" ++
 			"\t(all)\n"  ++
 			"\t(mode)\n" ++
 			"\t(exit)\n\n"
@@ -109,6 +109,9 @@ module Main(main) where
 		else if (sel == "exit") then
 			do
 				putStrLn "Bye!\n\n"
+		else if (sel == "mode") then
+			do
+				main
 		else
 			do
 				putStrLn $ "\nSorry, not recognized buffer \"" ++ sel ++ "\"\n"

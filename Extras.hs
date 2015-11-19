@@ -2,6 +2,7 @@ module Extras where
 
 	import System.Console.ANSI
 	import System.IO
+	import Data.Char
 
 	bar = "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
 

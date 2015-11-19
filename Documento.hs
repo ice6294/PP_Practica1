@@ -304,7 +304,7 @@ module Documento where
 	-- n: indica la manera de leer los documentos
 	getDocuments :: Int -> [String] -> [String] -> IO [Document]
 	getDocuments n (l:ls) args = do
-		x <- (read_funcions !! n) l args -- readDdocument_# path args
+		x <- (read_funcions !! n) l args -- readDocument_# path args
 		xs <- getDocuments n ls args
 		return $ x ++ xs
 	getDocuments _ [] _ = return []
@@ -370,3 +370,13 @@ module Documento where
 	removeDuplicatedAcronyms [] = []
 	removeDuplicatedAcronyms ((Document path journal ident year title abstract sections acronyms):ds) =
 		[(Document path journal ident year title abstract sections (removeDuplicates acronyms))] ++ removeDuplicatedAcronyms ds
+
+
+
+
+
+
+
+
+
+	

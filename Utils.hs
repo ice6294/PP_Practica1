@@ -6,6 +6,7 @@ module Utils where
 	import Documento
 	import Papers
 	import Extras
+	import Aux
 
 	-- SCALARS
 	options = [optionAll,option1,option2,option3,option4,option5,option6,option7,option8,option9]
@@ -27,7 +28,7 @@ module Utils where
 	-- Ejer 2
 	option2 :: IO ()
 	option2 = do
-		putStrLn bar
+		--putStrLn bar
 		papers <- getPapers
 		result <- getDocuments 2 papers []
 		putStrLn $ showPointed $ nub $ getJournals result -- nub -> Remove duplicates
@@ -113,4 +114,26 @@ module Utils where
 		papers <- getPapers
 		result <- getDocuments 0 papers []
 		clearLine
-		putStrLn $ showAllDocumentsAndAcronyms $ orderByTitle $ removeDuplicatedAcronyms result
+		--putStrLn $ showAllDocumentsAndAcronyms $ orderByTitle $ removeDuplicatedAcronyms result
+		showOneByOne (orderByTitle $ removeDuplicatedAcronyms result) 0
+
+	showOneByOne :: [Document] -> Int -> IO ()
+	showOneByOne docs (-1) = showOneByOne docs 0
+	showOneByOne docs i = do
+		if (i < length docs) then
+			do
+				clearUp
+				putStrLn ((show i) ++ ") " ++ bar ++ showDocumentAndAcronyms (docs !! i) ++ "\n")
+				sel <- prompt "prev(p) / next(n) / (stop) / nº  $ "
+				if (sel == "p") then
+					showOneByOne docs (i-1)
+				else if (sel == "n" || sel == "") then
+					showOneByOne docs (i+1)
+				else if (sel == "stop") then
+					putStrLn ""
+				else if (all isDigit sel) then
+					showOneByOne docs (read sel::Int)
+				else
+					showOneByOne docs (i)
+		else
+			putStrLn ""
