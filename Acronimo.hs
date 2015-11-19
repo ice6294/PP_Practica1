@@ -193,6 +193,16 @@ module Acronimo where
 		else
 			return ""
 
+	-- INTENTO DE ARREGLO: LEER PRIMER CARACTER DE LA VERSIÓN EXPANDIDA
+	{-takeExpWords'' :: String -> Int -> IO String
+	takeExpWords'' text n =
+		if (isLetter (text !! n)) then
+			do
+				exp <- takeExpWords'' text (n+1)
+				return $ exp ++ [text !! n]
+		else
+			return ""-}
+
 
 
 	-- SHOW FUNCTIONS

@@ -4,6 +4,7 @@ module Utils2 where
 	import Data.Char
 	import Data.List
 	import Documento
+	import Extras
 
 	-- SCALARS
 	options_2 = [optionAll_2,option1_2,option2_2,option3_2,option4_2,option5_2,option6_2,option7_2,option8_2,option9_2]
@@ -13,8 +14,7 @@ module Utils2 where
 	-- Ejer 1
 	option1_2 :: [Document] -> IO ()
 	option1_2 docs = do
-		putStr "Year: "
-		year <- getLine
+		year <- prompt "Year: "
 		putStrLn $ "\nSearching articles...\n" ++ bar
 		putStrLn $ showAllDocumentsTitles $ orderByTitle $ filterByYear (read year::Int) docs
 
@@ -31,8 +31,7 @@ module Utils2 where
 	-- Ejer 3
 	option3_2 :: [Document] -> IO ()
 	option3_2 docs = do
-		putStr "Acronym: "
-		acronym <- getLine
+		acronym <- prompt "Acronym: "
 		putStrLn $ "\nSearching in articles...\n" ++ bar
 		putStrLn $ showAllDocumentsTitles $ filterByAcronym acronym docs -- nub -> Remove duplicates
 
@@ -41,10 +40,8 @@ module Utils2 where
 	-- Ejer 4
 	option4_2 :: [Document] -> IO ()
 	option4_2 docs = do
-		putStr "Journal: "
-		journal <- getLine
-		putStr "Acronym: "
-		acronym <- getLine
+		journal <- prompt "Journal: "
+		acronym <- prompt "Acronym: "
 		putStrLn $ "\nSearching articles...\n" ++ bar
 		putStrLn $ showAllDocumentsTitles $ filterByAcronym acronym $ filterByJournal journal (removeDuplicatedAcronyms docs)
 
@@ -53,8 +50,7 @@ module Utils2 where
 	-- Ejer 5
 	option5_2 :: [Document] -> IO ()
 	option5_2 docs = do
-		putStr "Year: "
-		year <- getLine
+		year <- prompt "Year: "
 		putStrLn $ "\nSearching articles...\n" ++ bar
 		putStrLn $ showAllDocumentsTitlesAndAcronyms $ filterByYear (read year::Int) (removeDuplicatedAcronyms docs)
 
@@ -63,8 +59,7 @@ module Utils2 where
 	-- Ejer 6
 	option6_2 :: [Document] -> IO ()
 	option6_2 docs = do
-		putStr "ID: "
-		id <- getLine
+		id <- prompt "ID: "
 		putStrLn $ "\nSearching articles...\n" ++ bar
 		putStrLn $ showAllDocumentsTitlesAndAcronyms2 $ filterById (read id::Int) docs
 

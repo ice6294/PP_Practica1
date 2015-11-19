@@ -7,9 +7,9 @@ module Documento where
 	import Data.List
 	import Papers
 	import Acronimo
+	import Extras
 
 	-- SCALARS
-	bar = "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
 	read_funcions = [readDocument,readDocument_1,readDocument_2,readDocument_3,readDocument_4,readDocument_5,readDocument_6,readDocument_7,readDocument_8]
 
 	-- DATAS

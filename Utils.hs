@@ -5,6 +5,7 @@ module Utils where
 	import Data.List
 	import Documento
 	import Papers
+	import Extras
 
 	-- SCALARS
 	options = [optionAll,option1,option2,option3,option4,option5,option6,option7,option8,option9]
@@ -14,8 +15,7 @@ module Utils where
 	-- Ejer 1
 	option1 :: IO ()
 	option1 = do
-		putStr "Year: "
-		year <- getLine
+		year <- prompt "Year: "
 		putStrLn $ "\nSearching articles...\n" ++ bar
 
 		papers <- getPapers
@@ -37,8 +37,7 @@ module Utils where
 	-- Ejer 3
 	option3 :: IO ()
 	option3 = do
-		putStr "Acronym: "
-		acronim <- getLine
+		acronim <- prompt "Acronym: "
 		putStrLn $ "\nSearching in articles...\n" ++ bar
 
 		papers <- getPapers
@@ -50,10 +49,8 @@ module Utils where
 	-- Ejer 4
 	option4 :: IO ()
 	option4 = do
-		putStr "Journal: "
-		journal <- getLine
-		putStr "Acronym: "
-		acronym <- getLine
+		journal <- prompt "Journal: "
+		acronym <- prompt "Acronym: "
 		putStrLn $ "\nSearching articles...\n" ++ bar
 
 		papers <- getPapers
@@ -65,8 +62,7 @@ module Utils where
 	-- Ejer 5
 	option5 :: IO ()
 	option5 = do
-		putStr "Year: "
-		year <- getLine
+		year <- prompt "Year: "
 		putStrLn $ "\nSearching articles...\n" ++ bar
 
 		papers <- getPapers
@@ -78,8 +74,7 @@ module Utils where
 	-- Ejer 6
 	option6 :: IO ()
 	option6 = do
-		putStr "ID: "
-		id <- getLine
+		id <- prompt "ID: "
 		putStrLn $ "\nSearching articles...\n" ++ bar
 
 		papers <- getPapers
