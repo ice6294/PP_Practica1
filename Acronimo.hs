@@ -97,7 +97,7 @@ module Acronimo where
 							do
 								acr <- takeAcronym text n n2
 								-- Intentamos recoger el significado
-								exp <- takeExpanded acr text (length acr - 1) (n2+1)
+								exp <- takeExpanded acr text (length acr-1) (n2+1)
 								acronyms <- searchAcronyms' text (n2+1)
 								return $ acronyms ++ [Acronym acr exp (length text - n)]
 				-- Es una mayúscula aislada
@@ -148,7 +148,7 @@ module Acronimo where
 		if (text !! n_text == '(') && (text !! (n_text - n_acr - 2) == ')') then
 			do
 				exp <- takeExpWords text (n_text + 1) (endExpanded acr text n_acr (n_text+1))
-				if (length exp < 60)
+				if (length exp < 50)
 					then return exp
 					else return ""
 		else
@@ -158,51 +158,39 @@ module Acronimo where
 	-- match der-izq, devuelve la posición de la letra final de la forma expandida
 	{- endExpanded   acr  ->  text  ->n_acr->n_text-> end		| n_acr: length acronim, n_text: beginin rest (in text)-}
 	endExpanded :: String -> String -> Int -> Int -> Int
-	endExpanded acr text (-1) n_text = n_text				-- LA ÚLTIMA TIENE QUE IR PROCEDIDA DE UN ESPACIO!!!!
-	endExpanded acr text n_acr n_text =
-		-- Si el acronimo contiene "-" se salta
-		if ((acr !! n_acr == '-') || (isDigit $ acr !! n_acr)) then
-			endExpanded acr text (n_acr-1) n_text
-		else
-			-- Si se ha encontrado una letra se tacha y se sigue buscando
-			if (toUpper (text !! n_text) == (acr !! n_acr)) then
-				endExpanded acr text (n_acr-1) (n_text+1)
-			-- Si no se ha encontrado la siguiente letra se sigue buscando
+	endExpanded acr text (-1) n_text = --n_text				-- LA ÚLTIMA TIENE QUE IR PROCEDIDA DE UN ESPACIO!!!!
+		if ((length text) > n_text) then
+			if (isLetter (text !! n_text)) then
+				endExpanded acr text 0 n_text
 			else
-				endExpanded acr text n_acr (n_text+1)
+				n_text
+		else
+			n_text
+	endExpanded acr text n_acr n_text =
+		if ((length text) > n_text) then
+			-- Si el acronimo contiene "-" se salta
+			if ((acr !! n_acr == '-') || (isDigit $ acr !! n_acr)) then
+				endExpanded acr text (n_acr-1) n_text
+			else
+				-- Si se ha encontrado una letra se tacha y se sigue buscando
+				if (toUpper (text !! n_text) == (acr !! n_acr)) then
+					endExpanded acr text (n_acr-1) (n_text+1)
+				-- Si no se ha encontrado la siguiente letra se sigue buscando
+				else
+					endExpanded acr text n_acr (n_text+1)
+		else
+			n_text
 
 	-- recoge todas las palabras hasta el caracter final de la forma expandida | n: begin, n2: end
 	takeExpWords :: String -> Int -> Int -> IO String
 	takeExpWords text n n2 =
 		if (n == n2) then
 			do
-				exp <- takeExpWords' text n
-				return exp
+				return ""
 		else
 			do
 				exp <- takeExpWords text (n+1) n2
 				return $ exp ++ [text !! n]
-
-	-- si queda algo por coger de la última palabra, se coge
-	takeExpWords' :: String -> Int -> IO String
-	takeExpWords' text n =
-		if (isLetter (text !! n)) then
-			do
-				exp <- takeExpWords' text (n+1)
-				return $ exp ++ [text !! n]
-		else
-			return ""
-
-	-- INTENTO DE ARREGLO: LEER PRIMER CARACTER DE LA VERSIÓN EXPANDIDA
-	{-takeExpWords'' :: String -> Int -> IO String
-	takeExpWords'' text n =
-		if (isLetter (text !! n)) then
-			do
-				exp <- takeExpWords'' text (n+1)
-				return $ exp ++ [text !! n]
-		else
-			return ""-}
-
 
 
 	-- SHOW FUNCTIONS

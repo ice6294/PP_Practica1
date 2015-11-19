@@ -314,7 +314,7 @@ module Documento where
 		x <- readDocument l []
 		clearScreen
 		cursorUp 100
-		putStrLn $ "Cargando " ++ printPoints n1 ++ " (" ++ (show n1) ++ " de " ++ (show n2) ++ ")\n"
+		putStrLn $ "Cargando " ++ printPoints n1 ++ " (" ++ (show n1) ++ " de " ++ (show n2) ++ ")"
 		xs <- getAllDocuments (n1+1) n2 ls
 		return $ x ++ xs
 	getAllDocuments _ _ [] = return []
