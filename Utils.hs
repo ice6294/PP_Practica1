@@ -104,17 +104,20 @@ module Utils where
 
 	-- Ejer 9
 	option9 :: IO ()
-	option9 = putStrLn "# Not implemented yet"
-
+	option9 = do
+		putStr $ "\nSearching articles...\n"
+		papers <- getPapers
+		result <- getDocuments 0 papers []
+		clustering $ sortByAuxLength $ readExtras result
 
 
 	-- Option All
 	optionAll :: IO ()
 	optionAll = do
+		putStr $ "\nSearching articles...\n"
 		papers <- getPapers
 		result <- getDocuments 0 papers []
-		clearLine
-		--putStrLn $ showAllDocumentsAndAcronyms $ orderByTitle $ removeDuplicatedAcronyms result
+		clearUp
 		showOneByOne (orderByTitle $ removeDuplicatedAcronyms result) 0
 
 	showOneByOne :: [Document] -> Int -> IO ()
@@ -137,3 +140,14 @@ module Utils where
 					showOneByOne docs (i)
 		else
 			putStrLn ""
+
+
+
+	-- Option Top
+	optionTop :: IO ()
+	optionTop = do
+		putStr $ "\nSearching articles...\n"
+		papers <- getPapers
+		result <- getDocuments 0 papers []
+		clearUp
+		putStrLn $ showExtras $ sortByAuxLength $ readExtras result

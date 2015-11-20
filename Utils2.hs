@@ -84,14 +84,13 @@ module Utils2 where
 	-- Ejer 9
 	option9_2 :: [Document] -> IO ()
 	option9_2 docs = do
-		putStrLn $ showExtras $ sortByAuxLength $ readExtras docs
+		clustering $ sortByAuxLength $ readExtras docs
 
 
 
 	-- Option All
 	optionAll_2 :: [Document] -> IO ()
 	optionAll_2 docs = do
-		--putStrLn $ showAllDocumentsAndAcronyms $ orderByTitle $ removeDuplicatedAcronyms docs
 		showOneByOne (orderByTitle $ removeDuplicatedAcronyms docs) 0
 
 	showOneByOne :: [Document] -> Int -> IO ()
@@ -114,3 +113,11 @@ module Utils2 where
 					showOneByOne docs (i)
 		else
 			putStrLn ""
+
+
+
+	-- Option Top
+	optionTop_2 :: [Document] -> IO ()
+	optionTop_2 docs = do
+		clearUp
+		putStrLn $ showExtras $ sortByAuxLength $ readExtras docs

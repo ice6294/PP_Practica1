@@ -23,13 +23,15 @@ module Aux where
 
 	data Auxiliar = Auxiliar
 		{	acronym	:: Acronym
-		,	n		:: Integer	}
+		,	n		:: Int	}
 
 	instance Eq Auxiliar where
 		a == b = (getN a) == (getN b)
 
 	instance Ord Auxiliar where
 		compare a b = compare (getN a) (getN b)
+
+
 
 	-- GET METHODS
 	getDoc :: Extra -> Document
@@ -41,7 +43,7 @@ module Aux where
 	getAcronym :: Auxiliar -> Acronym
 	getAcronym (Auxiliar acronym _) = acronym
 
-	getN :: Auxiliar -> Integer
+	getN :: Auxiliar -> Int
 	getN (Auxiliar _ n) = n
 
 
@@ -66,7 +68,7 @@ module Aux where
 		where
 			aux = sort list
 
-	readAuxiliars' :: Integer -> Acronym -> [Acronym] -> [Auxiliar]
+	readAuxiliars' :: Int -> Acronym -> [Acronym] -> [Auxiliar]
 	readAuxiliars' n acr [] = [(Auxiliar acr n)]
 	readAuxiliars' n acr (a:as)
 		|	acr /= a	= [(Auxiliar acr n)] ++ readAuxiliars' 1 a as
@@ -94,5 +96,81 @@ module Aux where
 	showAuxiliars (a:as) = "\t· " ++ (getAcr $ getAcronym a) ++ " (" ++ (show $ getN a) ++ ")\n" ++ showAuxiliars as
 
 
-	{-clustering :: [Document] -> Int -> [[Document]]
-	culstering list = []-}
+
+	-- CLUSTERING
+	-- Clustering muestra por pantalla las agrupaciones de documentos semejantes
+	clustering :: [Extra] -> IO ()
+	clustering exts = putStrLn $ showClusters $ removeEmptyClusters $ clustering' exts 0
+
+	-- Clustering' recibe los documentos, la posición actual, la ronda que toca, y devuelve un String
+	clustering' :: [Extra] -> Int -> [[Extra]]
+	clustering' exts i
+		-- Si estamos en medio de una ronda, comparamos el documento i con sus siguientes (roundCompare)
+		|	i < length exts	=	let x = roundCompare (exts !! i) (drop (i+1) exts) in
+								-- Si no encuentra parecidos, se sigue normalmente con el clustering'
+								if (length x == 1) then
+									clustering' exts (i+1)
+								else
+									[x] ++ clustering' (filterExtras exts x) i
+
+		-- Si hemos termiando la ronda se meten todos al saco
+		|	otherwise		=	clusteringRest exts
+
+	clusteringRest :: [Extra] -> [[Extra]]
+	clusteringRest [] = []
+	clusteringRest (e:es) = [[e]] ++ clusteringRest es
+
+	-- roundCompare recibe el documento actual, los siguientes docuentos y la ronda, y compara el documento con sus siguientes
+	roundCompare :: Extra -> [Extra] -> [Extra]
+	roundCompare ext [] = [ext]
+	roundCompare ext (e:es) =
+		if (compareAux ext e) then
+			[e] ++ roundCompare ext es
+		else
+			roundCompare ext es
+
+	-- comparamos el acrónimo más usado de ambos
+	compareAux :: Extra -> Extra -> Bool
+	compareAux e1 e2 =
+		if (((length $ getAux e1) > 0) && ((length $ getAux e2) > 0)) then
+			(getAcronym $ head $ getAux $ e1) == (getAcronym $ head $ getAux $ e2)
+		else
+			False
+
+	-- Devolvemos una lista "c" que contiene los documentos de "a" que no están en "b"
+	filterExtras :: [Extra] -> [Extra] -> [Extra]
+	filterExtras [] _ = []
+	filterExtras (a:as) b
+		|	elem a b	= filterExtras as b
+		|	otherwise	= [a] ++ filterExtras as b
+
+	removeEmptyClusters :: [[Extra]] -> [[Extra]]
+	removeEmptyClusters [] = []
+	removeEmptyClusters (e:es) =
+		if (e == []) then
+			removeEmptyClusters es
+		else
+			[e] ++ removeEmptyClusters es
+
+
+
+	-- SHOW CLUSTERS FUNCTIONS
+	showClusters :: [[Extra]] -> String
+	showClusters exts = showClusters' exts 0
+
+	showClusters' :: [[Extra]] -> Int -> String
+	showClusters' [] _ = ""
+	showClusters' (e:es) i = bar ++ "Cluster " ++ (show i) ++ 
+							(showAcrCluster e) ++ "\n" ++ (showCluster e) ++ showClusters' es (i+1)
+
+	showAcrCluster :: [Extra] -> String
+	showAcrCluster [] = ""
+	showAcrCluster (e:_) =
+		if ((length $ getAux e) > 0) then
+			" (related to \"" ++ (getAcr $ getAcronym $ head $ getAux e) ++ "\")"
+		else
+			""
+
+	showCluster :: [Extra] -> String
+	showCluster [] = ""
+	showCluster (e:es) = "\t· " ++ (show $ getIdent $ getDoc e) ++ " - " ++ (getTitle $ getDoc e) ++ "\n" ++ (showCluster es)

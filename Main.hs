@@ -49,8 +49,9 @@ module Main(main) where
 			"\t6) Show acronyms with the numer of times that appears in an article from a given ID.\n" ++
 			"\t7) Show all IDs and titles of the articles without any acronyms.\n" ++
 			"\t8) Show all information from all articles.\n" ++
-			"\t9) Tralalalalalala.\n" ++
-			"\t(all)\n"  ++
+			"\t9) Cluster articles related to the same ilness/topic.\n" ++
+			"\t(all) -> Show one by one all the articles with the acronyms.\n"  ++
+			"\t(top) -> Show most used acronyms of the articles.\n" ++
 			"\t(mode)\n" ++
 			"\t(exit)\n\n"
 
@@ -82,12 +83,17 @@ module Main(main) where
 				(options !! 0)
 				x <- prompt "Press enter:"
 				start
-		else if (sel == "exit") then
+		else if (sel == "top") then
 			do
-				putStrLn "Bye!\n\n"
+				optionTop
+				x <- prompt "Press enter:"
+				start
 		else if (sel == "mode") then
 			do
 				main
+		else if (sel == "exit") then
+			do
+				putStrLn "Bye!\n\n"
 		else
 			do
 				putStrLn $ "\nSorry, not recognized buffer \"" ++ sel ++ "\"\n"
@@ -106,12 +112,17 @@ module Main(main) where
 				(options_2 !! 0) docs
 				x <- prompt "Press enter:"
 				start2 docs
-		else if (sel == "exit") then
+		else if (sel == "top") then
 			do
-				putStrLn "Bye!\n\n"
+				optionTop_2 docs
+				x <- prompt "Press enter:"
+				start2 docs
 		else if (sel == "mode") then
 			do
 				main
+		else if (sel == "exit") then
+			do
+				putStrLn "Bye!\n\n"
 		else
 			do
 				putStrLn $ "\nSorry, not recognized buffer \"" ++ sel ++ "\"\n"

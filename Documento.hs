@@ -247,7 +247,7 @@ module Documento where
 	showAllDocumentsTitlesAndAcronyms2 [] = ""
 
 	showAllDocumentsTitlesAndIds :: [Document] -> String
-	showAllDocumentsTitlesAndIds (d:ds) = "· " ++ getTitle d ++ ". Id: " ++ (show $ getIdent d) ++"\n" ++ showAllDocumentsTitlesAndIds ds
+	showAllDocumentsTitlesAndIds (d:ds) = "· (" ++ (show $ getIdent d) ++ ") " ++ getTitle d ++ "\n" ++ showAllDocumentsTitlesAndIds ds
 	showAllDocumentsTitlesAndIds [] = ""
 
 	showAllDocumentsAndAcronyms :: [Document] -> String
@@ -379,4 +379,3 @@ module Documento where
 
 
 
-	
