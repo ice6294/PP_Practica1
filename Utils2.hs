@@ -99,7 +99,7 @@ module Utils2 where
 		if (i < length docs) then
 			do
 				clearUp
-				putStrLn ((show i) ++ ") " ++ bar ++ showDocumentAndAcronyms (docs !! i) ++ "\n")
+				putStrLn ((show i) ++ ") " ++ bar ++ showDocumentAndAcronyms2 (docs !! i) ++ "\n")
 				sel <- prompt "prev(p) / next(n) / (stop) / nº  $ "
 				if (sel == "p") then
 					showOneByOne docs (i-1)

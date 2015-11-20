@@ -16,3 +16,7 @@ module Extras where
 	clearUp = do
 		clearScreen
 		cursorUp 100
+
+	printPoints :: Int -> String
+	printPoints 0 = ""
+	printPoints n = "." ++ printPoints (n-1)

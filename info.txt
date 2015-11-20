@@ -7,6 +7,11 @@ Files:
 	· Documento.hs
 	· Papers.hs
 	· Acronimo.hs
-	· OrthographicMeasures.hs
+	· Aux.hs
+	· Extras.hs
+
+Folders:
+	· papersUTF8
+	· Program (compilation files)
 
 Compile command: ghc -odir Program/O_files/ -hidir Program/HI_files/ -o Program/Practica1 --make Main.hs

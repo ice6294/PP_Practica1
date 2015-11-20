@@ -85,18 +85,6 @@ module Aux where
 
 
 
-	-- SHOW FUNCTIONS
-	showExtras :: [Extra] -> String
-	showExtras [] = ""
-	showExtras (e:es) = "\n" ++ bar ++ "Doc: (" ++ (show $ getIdent $ getDoc e) ++ ") " ++  (getTitle $ getDoc e) ++
-						"\nAcronimos escogidos: \n" ++ (showAuxiliars $ getAux e) ++ showExtras es
-
-	showAuxiliars :: [Auxiliar] -> String
-	showAuxiliars [] = ""
-	showAuxiliars (a:as) = "\t· " ++ (getAcr $ getAcronym a) ++ " (" ++ (show $ getN a) ++ ")\n" ++ showAuxiliars as
-
-
-
 	-- CLUSTERING
 	-- Clustering muestra por pantalla las agrupaciones de documentos semejantes
 	clustering :: [Extra] -> IO ()
@@ -151,6 +139,19 @@ module Aux where
 			removeEmptyClusters es
 		else
 			[e] ++ removeEmptyClusters es
+
+
+
+	-- SHOW FUNCTIONS
+	showExtras :: [Extra] -> String
+	showExtras [] = ""
+	showExtras (e:es) = "\n" ++ bar ++ "Doc: (" ++ (show $ getIdent $ getDoc e) ++ ") " ++  (getTitle $ getDoc e) ++
+						"\nAcronimos escogidos: \n" ++ (showAuxiliars $ getAux e) ++ showExtras es
+
+	showAuxiliars :: [Auxiliar] -> String
+	showAuxiliars [] = ""
+	showAuxiliars (a:as) =	"\t· " ++ (getAcr $ getAcronym a) ++ " (" ++ (show $ getN a) ++ ")" ++
+							"\t" ++ (getExp $ getAcronym a) ++ "\n" ++ showAuxiliars as
 
 
 

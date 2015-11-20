@@ -31,6 +31,66 @@ module Documento where
 
 
 
+	-- GET FUNCTIONS
+	getPath :: Document -> String
+	getPath (Document path _ _ _ _ _ _ _) = path
+
+	getJournal :: Document -> String
+	getJournal (Document _ journal _ _ _ _ _ _) = journal
+
+	getIdent :: Document -> Int
+	getIdent (Document _ _ ident _ _ _ _ _) = ident
+
+	getYear :: Document -> Int
+	getYear (Document _ _ _ year _ _ _ _) = year
+
+	getTitle :: Document -> String
+	getTitle (Document _ _ _ _ title _ _ _) = title
+
+	getAbstract :: Document -> String
+	getAbstract (Document _ _ _ _ _ abstract _ _) = abstract
+
+	getSectionsNumber :: Document -> Int
+	getSectionsNumber (Document _ _ _ _ _ _ sections _) = length sections
+
+	getAcronyms :: Document -> [Acronym]
+	getAcronyms (Document _ _ _ _ _ _ _ acronyms) = acronyms
+
+
+
+	-- OTHER GET FUNCTIONS
+	getTitles :: Document -> [String]
+	getTitles (Document _ _ _ _ _ _ sections _) = getTitles' sections
+
+	-- El argumento está compuesto por [[Titulo1,Seccion1], ..., [TituloN,SeccionN]] y devuelve [Titulo1, ..., TituloN]
+	getTitles' :: [[String]] -> [String]
+	getTitles' [[]] = []
+	getTitles' (t:ts) = [head t] ++ getTitles' ts
+	getTitles' _ = []
+
+
+
+	-- RETURN ALL DOCUMENTS
+	-- n: indica la manera de leer los documentos
+	getDocuments :: Int -> [String] -> [String] -> IO [Document]
+	getDocuments n (l:ls) args = do
+		x <- (read_funcions !! n) l args -- readDocument_# path args
+		xs <- getDocuments n ls args
+		return $ x ++ xs
+	getDocuments _ [] _ = return []
+
+	getAllDocuments :: Int -> Int -> [String] -> IO [Document]
+	getAllDocuments n1 n2 (l:ls) = do
+		x <- readDocument l []
+		clearScreen
+		cursorUp 100
+		putStrLn $ "Cargando " ++ printPoints n1 ++ " (" ++ (show n1) ++ " de " ++ (show n2) ++ ")"
+		xs <- getAllDocuments (n1+1) n2 ls
+		return $ x ++ xs
+	getAllDocuments _ _ [] = return []
+
+
+
 	-- READ ONE DOCUMENT FROM PATH
 	readDocument :: String -> [String] -> IO [Document]
 	readDocument path _ = do
@@ -60,7 +120,6 @@ module Documento where
 		else
 			[[d,head ds]] ++ getRest (tail ds)
 	getRest [] = []
-	{- NOTA!: SI UNA SECCION TIENE VARIOS SALOS DE LINEA, NO FUNCIONA BIEN! -}
 
 
 
@@ -255,73 +314,17 @@ module Documento where
 	showAllDocumentsAndAcronyms [] = ""
 
 	showDocumentAndAcronyms :: Document -> String
-	showDocumentAndAcronyms doc =	"\nPath: " ++ getPath doc ++ "\nTitle: " ++ getTitle doc ++ " (" ++ (show $ getYear doc) ++
-						")\nAbstract: " ++ getAbstract doc ++ "\nSection number: " ++
-						(show $ getSectionsNumber doc) ++ "\nSections:\n" ++ showTitles (getTitles doc)
-						++ "Acronimos: \n" ++ showAcronyms (getAcronyms doc)
+	showDocumentAndAcronyms doc = 	"\nTitle: " ++ getTitle doc ++ " (" ++ (show $ getYear doc) ++
+									")\nAbstract: " ++ getAbstract doc ++ "\nSection number: " ++
+									(show $ getSectionsNumber doc) ++ "\nSections:\n" ++ showTitles (getTitles doc)
+									++ "Acronimos: \n" ++ showAcronyms (getAcronyms doc)
 
-						
-
-	-- GET FUNCTIONS
-	getPath :: Document -> String
-	getPath (Document path _ _ _ _ _ _ _) = path
-
-	getJournal :: Document -> String
-	getJournal (Document _ journal _ _ _ _ _ _) = journal
-
-	getIdent :: Document -> Int
-	getIdent (Document _ _ ident _ _ _ _ _) = ident
-
-	getYear :: Document -> Int
-	getYear (Document _ _ _ year _ _ _ _) = year
-
-	getTitle :: Document -> String
-	getTitle (Document _ _ _ _ title _ _ _) = title
-
-	getAbstract :: Document -> String
-	getAbstract (Document _ _ _ _ _ abstract _ _) = abstract
-
-	getSectionsNumber :: Document -> Int
-	getSectionsNumber (Document _ _ _ _ _ _ sections _) = length sections
-
-	getAcronyms :: Document -> [Acronym]
-	getAcronyms (Document _ _ _ _ _ _ _ acronyms) = acronyms
-
-
-	-- OTHER GET FUNCTIONS
-	getTitles :: Document -> [String]
-	getTitles (Document _ _ _ _ _ _ sections _) = getTitles' sections
-
-	-- El argumento está compuesto por [[Titulo1,Seccion1], ..., [TituloN,SeccionN]] y devuelve [Titulo1, ..., TituloN]
-	getTitles' :: [[String]] -> [String]
-	getTitles' [[]] = []
-	getTitles' (t:ts) = [head t] ++ getTitles' ts
-	getTitles' _ = []
-
-
-
-	-- RETURN ALL DOCUMENTS
-	-- n: indica la manera de leer los documentos
-	getDocuments :: Int -> [String] -> [String] -> IO [Document]
-	getDocuments n (l:ls) args = do
-		x <- (read_funcions !! n) l args -- readDocument_# path args
-		xs <- getDocuments n ls args
-		return $ x ++ xs
-	getDocuments _ [] _ = return []
-
-	getAllDocuments :: Int -> Int -> [String] -> IO [Document]
-	getAllDocuments n1 n2 (l:ls) = do
-		x <- readDocument l []
-		clearScreen
-		cursorUp 100
-		putStrLn $ "Cargando " ++ printPoints n1 ++ " (" ++ (show n1) ++ " de " ++ (show n2) ++ ")"
-		xs <- getAllDocuments (n1+1) n2 ls
-		return $ x ++ xs
-	getAllDocuments _ _ [] = return []
-
-	printPoints :: Int -> String
-	printPoints 0 = ""
-	printPoints n = "." ++ printPoints (n-1)
+	showDocumentAndAcronyms2 :: Document -> String
+	showDocumentAndAcronyms2 doc =	"Path: " ++ getPath doc ++ "\nID: " ++ (show $ getIdent doc) ++
+									"\nTitle: " ++ getTitle doc ++ " (" ++ (show $ getYear doc) ++
+									")\nAbstract: " ++ getAbstract doc ++ "\nSection number: " ++
+									(show $ getSectionsNumber doc) ++ "\nSections:\n" ++ showTitles (getTitles doc)
+									++ "Acronimos: \n" ++ showAcronyms (getAcronyms doc)
 
 
 

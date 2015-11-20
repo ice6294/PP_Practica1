@@ -1,4 +1,4 @@
-module Papers where
+module Papers(getPapers) where
 
 	import System.Directory
 

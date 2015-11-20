@@ -30,7 +30,8 @@ module Acronimo where
 
 
 
-	-- READ ACRONIMS FROM REVERSED TEXT
+	-- READ ACRONIMS
+	-- quickSearch realiza la búsqueda se acrónimos (pero no su forma expandida)
 	quickSearch :: String -> IO [Acronym]
 	quickSearch text = do
 		acronyms <- quickSearch' (reverse text) 0
@@ -70,6 +71,7 @@ module Acronimo where
 					acronyms <- quickSearch' text (n+1)
 					return acronyms
 
+	-- searchAcronyms realiza la búsqueda de acrónimos junto con sus respectivas formas expandidas
 	searchAcronyms :: String -> IO [Acronym]
 	searchAcronyms text = do
 		acronyms <- searchAcronyms' (reverse text) 0
@@ -217,8 +219,6 @@ module Acronimo where
 		|	acr /= a			= [acr] ++ removeDuplicates' a as
 		|	getExp acr == ""	= [a]   ++ removeDuplicates' a as
 		|	otherwise			= [acr] ++ removeDuplicates' acr as
-
-
 
 	countDuplicates :: [Acronym] -> [String]
 	countDuplicates [] = []
